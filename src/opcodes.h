@@ -40,6 +40,7 @@ extern int	cpu_update_period;
 /* This file contains all 260 of the opcode subroutines */
 
 BEGIN_CPU_FUNC(opcode_0x00)					/* BRK s */
+    PC.W.PC++;
 #ifdef NATIVE_MODE
 	S_PUSH(PC.B.PB);
 	S_PUSH(PC.B.H);
@@ -70,6 +71,7 @@ BEGIN_CPU_FUNC(opcode_0x01)
 END_CPU_FUNC
 
 BEGIN_CPU_FUNC(opcode_0x02)					/* COP s */
+    PC.W.PC++;
 #ifdef NATIVE_MODE
 	S_PUSH(PC.B.PB);
 	S_PUSH(PC.B.H);
