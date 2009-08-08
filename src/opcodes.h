@@ -48,8 +48,8 @@ BEGIN_CPU_FUNC(opcode_0x00)					/* BRK s */
 	F_setD(0);
 	F_setI(1);
 	PC.B.PB = 0x00;
-	PC.B.L = M_READ(0xFFE6);
-	PC.B.H = M_READ(0xFFE7);
+	PC.B.L = M_READ_VECTOR(0xFFE6);
+	PC.B.H = M_READ_VECTOR(0xFFE7);
 #else
 	S_PUSH(PC.B.H);
 	S_PUSH(PC.B.L);
@@ -59,8 +59,8 @@ BEGIN_CPU_FUNC(opcode_0x00)					/* BRK s */
 	F_setB(0);
 	DB = 0;
 	PC.B.PB = 0x00;
-	PC.B.L = M_READ(0xFFFE);
-	PC.B.H = M_READ(0xFFFF);
+	PC.B.L = M_READ_VECTOR(0xFFFE);
+	PC.B.H = M_READ_VECTOR(0xFFFF);
 #endif
 END_CPU_FUNC
 
@@ -78,8 +78,8 @@ BEGIN_CPU_FUNC(opcode_0x02)					/* COP s */
 	F_setD(0);
 	F_setI(1);
 	PC.B.PB = 0x00;
-	PC.B.L = M_READ(0xFFE4);
-	PC.B.H = M_READ(0xFFE5);
+	PC.B.L = M_READ_VECTOR(0xFFE4);
+	PC.B.H = M_READ_VECTOR(0xFFE5);
 #else
 	S_PUSH(PC.B.H);
 	S_PUSH(PC.B.L);
@@ -88,8 +88,8 @@ BEGIN_CPU_FUNC(opcode_0x02)					/* COP s */
 	F_setI(1);
 	DB = 0;
 	PC.B.PB = 0x00;
-	PC.B.L = M_READ(0xFFF4);
-	PC.B.H = M_READ(0xFFF5);
+	PC.B.L = M_READ_VECTOR(0xFFF4);
+	PC.B.H = M_READ_VECTOR(0xFFF5);
 #endif
 END_CPU_FUNC
 
@@ -1614,8 +1614,8 @@ BEGIN_CPU_FUNC(reset)
 	A.W = 0;
 	X.W = 0;
 	Y.W = 0;
-	PC.B.L = M_READ(0x00FFFC);  /* Was 0xFFFFFC/D --saf2 */
-	PC.B.H = M_READ(0x00FFFD);
+	PC.B.L = M_READ_VECTOR(0xFFFC);
+	PC.B.H = M_READ_VECTOR(0xFFFD);
 	CPU_modeSwitch();
 END_CPU_FUNC
 
@@ -1629,8 +1629,8 @@ BEGIN_CPU_FUNC(abort)
 	F_setD(0);
 	F_setI(1);
 	PC.B.PB = 0;
-	PC.B.L = M_READ(0x00FFE8);
-	PC.B.H = M_READ(0x00FFE9);
+	PC.B.L = M_READ_VECTOR(0xFFE8);
+	PC.B.H = M_READ_VECTOR(0xFFE9);
 	cpu_cycle_count += 8;
 #else
 	S_PUSH(PC.B.H);
@@ -1640,8 +1640,8 @@ BEGIN_CPU_FUNC(abort)
 	F_setI(1);
 	DB = 0;
 	PC.B.PB = 0;
-	PC.B.L = M_READ(0x00FFF8);
-	PC.B.H = M_READ(0x00FFF9);
+	PC.B.L = M_READ_VECTOR(0xFFF8);
+	PC.B.H = M_READ_VECTOR(0xFFF9);
 	cpu_cycle_count += 7;
 #endif
 END_CPU_FUNC
@@ -1657,8 +1657,8 @@ BEGIN_CPU_FUNC(nmi)
 	F_setD(0);
 	F_setI(1);
 	PC.B.PB = 0x00;
-	PC.B.L = M_READ(0x00FFEA);
-	PC.B.H = M_READ(0x00FFEB);
+	PC.B.L = M_READ_VECTOR(0xFFEA);
+	PC.B.H = M_READ_VECTOR(0xFFEB);
 	cpu_cycle_count += 8;
 #else
 	S_PUSH(PC.B.H);
@@ -1668,8 +1668,8 @@ BEGIN_CPU_FUNC(nmi)
 	F_setI(1);
 	DB = 0;
 	PC.B.PB = 0x00;
-	PC.B.L = M_READ(0x00FFFA);
-	PC.B.H = M_READ(0x00FFFB);
+	PC.B.L = M_READ_VECTOR(0xFFFA);
+	PC.B.H = M_READ_VECTOR(0xFFFB);
 	cpu_cycle_count += 7;
 #endif
 END_CPU_FUNC
@@ -1685,8 +1685,8 @@ BEGIN_CPU_FUNC(irq)
 	F_setD(0);
 	F_setI(1);
 	PC.B.PB = 0x00;
-	PC.B.L = M_READ(0x00FFEE);
-	PC.B.H = M_READ(0x00FFEF);
+	PC.B.L = M_READ_VECTOR(0xFFEE);
+	PC.B.H = M_READ_VECTOR(0xFFEF);
 	cpu_cycle_count += 8;
 #else
 	S_PUSH(PC.B.H);
@@ -1697,8 +1697,8 @@ BEGIN_CPU_FUNC(irq)
 	F_setB(1);
 	DB = 0;
 	PC.B.PB = 0x00;
-	PC.B.L = M_READ(0x00FFFE);
-	PC.B.H = M_READ(0x00FFFF);
+	PC.B.L = M_READ_VECTOR(0xFFFE);
+	PC.B.H = M_READ_VECTOR(0xFFFF);
 	cpu_cycle_count += 7;
 #endif
 END_CPU_FUNC

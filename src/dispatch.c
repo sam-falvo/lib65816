@@ -181,7 +181,7 @@ debug_resume:
     if (cpu_irq) goto irq;
 irq_return:
     if (cpu_wait) { cpu_cycle_count++; goto dispatch; }
-    opcode = M_READ(PC.A);
+    opcode = M_READ_OPCODE(PC.A);
     PC.W.PC++;
 
 #ifdef OLDCYCLES

@@ -124,11 +124,23 @@ extern word32   cpu_cycle_count;
  * Set these to point to routines which handle your emulated machine's
  * memory access (generally these routines will check for access to
  * memory-mapped I/O and things of that nature.)
+ *
+ * The SYNC pin is useful to trap OS calls, whereas the VP pin is
+ * needed to emulate hardware which modifies the vector addresses.
  */
 
-#define M_READ(a)       MEM_readMem(a, cpu_cycle_count)
-#define M_WRITE(a,v)    MEM_writeMem((a),(v), cpu_cycle_count)
-
+#ifdef EMULATE_READMODE_PINS
+#define EMUL_PIN_SYNC 1 // much more work to provide VPD and VPA
+#define EMUL_PIN_VP   2
+#define M_READ(a)         MEM_readMem(a, cpu_cycle_count, 0)
+#define M_READ_OPCODE(a)  MEM_readMem(a, cpu_cycle_count, EMUL_PIN_SYNC)
+#define M_READ_VECTOR(a)  MEM_readMem(a, cpu_cycle_count, EMUL_PIN_VP)
+#else
+#define M_READ(a)         MEM_readMem(a, cpu_cycle_count)
+#define M_READ_OPCODE(a)  MEM_readMem(a, cpu_cycle_count)
+#define M_READ_VECTOR(a)  MEM_readMem(a, cpu_cycle_count)
+#endif
+#define M_WRITE(a,v)      MEM_writeMem((a),(v), cpu_cycle_count)
 
 
 /* Set this macro to your emulator's "update" routine. Your update
@@ -210,7 +222,11 @@ void CPU_debug(void);
 
 void EMUL_handleWDM(byte opcode, word32 timestamp);
 void EMUL_hardwareUpdate(word32 timestamp);
+#ifdef EMULATE_READMODE_PINS
+byte MEM_readMem(word32 address, word32 timestamp, word32 flags);
+#else
 byte MEM_readMem(word32 address, word32 timestamp);
+#endif
 void MEM_writeMem(word32 address, byte b, word32 timestamp);
 
 #endif /* _CPU_H */
