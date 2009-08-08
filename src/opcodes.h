@@ -53,7 +53,7 @@ BEGIN_CPU_FUNC(opcode_0x00)					/* BRK s */
 #else
 	S_PUSH(PC.B.H);
 	S_PUSH(PC.B.L);
-	S_PUSH(P);
+	S_PUSH(P | 0x10);  /* ed spittles  set brk flag */
 	F_setD(0);
 	F_setI(1);
 	F_setB(0);
