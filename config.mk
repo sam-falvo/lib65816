@@ -1,5 +1,5 @@
 CC      := gcc
-CCFLAGS := -c -O2 -fomit-frame-pointer
+CCFLAGS := -c -O2 -fomit-frame-pointer $(CCOPTS)
 LD      := gcc
 LDFLAGS :=
 
