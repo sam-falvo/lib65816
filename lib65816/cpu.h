@@ -129,17 +129,11 @@ extern word32   cpu_cycle_count;
  * needed to emulate hardware which modifies the vector addresses.
  */
 
-#ifdef EMULATE_READMODE_PINS
 #define EMUL_PIN_SYNC 1 // much more work to provide VPD and VPA
 #define EMUL_PIN_VP   2
 #define M_READ(a)         MEM_readMem(a, cpu_cycle_count, 0)
 #define M_READ_OPCODE(a)  MEM_readMem(a, cpu_cycle_count, EMUL_PIN_SYNC)
 #define M_READ_VECTOR(a)  MEM_readMem(a, cpu_cycle_count, EMUL_PIN_VP)
-#else
-#define M_READ(a)         MEM_readMem(a, cpu_cycle_count)
-#define M_READ_OPCODE(a)  MEM_readMem(a, cpu_cycle_count)
-#define M_READ_VECTOR(a)  MEM_readMem(a, cpu_cycle_count)
-#endif
 #define M_WRITE(a,v)      MEM_writeMem((a),(v), cpu_cycle_count)
 
 
@@ -218,15 +212,14 @@ void CPU_debug(void);
 /* These are used by the various macros above, so make sure that we
  * declare them for type safety purposes!  Thanks to fabys for these on
  * the 6502.org forum.
+ *
+ * Thanks to BigEd on 6502.org for implementing support for memory access
+ * modes -- see EMUL_* macros above, near MEM_READ_*, et. al.
  */
 
 void EMUL_handleWDM(byte opcode, word32 timestamp);
 void EMUL_hardwareUpdate(word32 timestamp);
-#ifdef EMULATE_READMODE_PINS
-byte MEM_readMem(word32 address, word32 timestamp, word32 flags);
-#else
-byte MEM_readMem(word32 address, word32 timestamp);
-#endif
+byte MEM_readMem(word32 address, word32 timestamp, word32 emulFlags);
 void MEM_writeMem(word32 address, byte b, word32 timestamp);
 
 #endif /* _CPU_H */
