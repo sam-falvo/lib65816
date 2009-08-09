@@ -19,9 +19,10 @@ struct CPUEvent
     CPUHandler *    handler;
 };
 
-void CPUEvent_schedule( CPUEvent *, word32, CPUHandler * );
 void CPUEvent_elapse( word32 delta );
 void CPUEvent_dispatch( void );
+void CPUEvent_initialize( void );
+void CPUEvent_schedule( CPUEvent *, word32, CPUHandler * );
 
 #endif
 
