@@ -54,7 +54,7 @@ BEGIN_CPU_FUNC(opcode_0x00)					/* BRK s */
 #else
 	S_PUSH(PC.B.H);
 	S_PUSH(PC.B.L);
-	S_PUSH(P | 0x10);  /* ed spittles  set brk flag */
+	S_PUSH(P | 0x30);
 	F_setD(0);
 	F_setI(1);
 	F_setB(0);
@@ -85,7 +85,7 @@ BEGIN_CPU_FUNC(opcode_0x02)					/* COP s */
 #else
 	S_PUSH(PC.B.H);
 	S_PUSH(PC.B.L);
-	S_PUSH((byte) (P & ~0x10));
+	S_PUSH((byte) ((P & ~0x10) | 0x20));
 	F_setD(0);
 	F_setI(1);
 	DB = 0;
@@ -121,7 +121,11 @@ BEGIN_CPU_FUNC(opcode_0x07)
 END_CPU_FUNC
 
 BEGIN_CPU_FUNC(opcode_0x08)
+#ifdef NATIVE_MODE
 	S_PUSH(P);					/* PHP s */
+#else
+    S_PUSH((P & ~0x10) | 0x20);
+#endif
 END_CPU_FUNC
 
 BEGIN_CPU_FUNC(opcode_0x09)
@@ -1637,7 +1641,7 @@ BEGIN_CPU_FUNC(abort)
 #else
 	S_PUSH(PC.B.H);
 	S_PUSH(PC.B.L);
-	S_PUSH((byte) (P & ~0x10));
+	S_PUSH((byte) ((P & ~0x10) | 0x20));
 	F_setD(0);
 	F_setI(1);
 	DB = 0;
@@ -1665,7 +1669,7 @@ BEGIN_CPU_FUNC(nmi)
 #else
 	S_PUSH(PC.B.H);
 	S_PUSH(PC.B.L);
-	S_PUSH((byte) (P & ~0x10));
+	S_PUSH((byte) ((P & ~0x10) | 0x20));
 	F_setD(0);
 	F_setI(1);
 	DB = 0;
@@ -1693,7 +1697,7 @@ BEGIN_CPU_FUNC(irq)
 #else
 	S_PUSH(PC.B.H);
 	S_PUSH(PC.B.L);
-	S_PUSH((byte) (P & ~0x10));
+	S_PUSH((byte) ((P & ~0x10) | 0x20));
 	F_setD(0);
 	F_setI(1);
 	F_setB(1);
