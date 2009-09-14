@@ -124,7 +124,7 @@ BEGIN_CPU_FUNC(opcode_0x08)
 #ifdef NATIVE_MODE
 	S_PUSH(P);					/* PHP s */
 #else
-    S_PUSH((P & ~0x10) | 0x20);
+    S_PUSH(P | 0x30);
 #endif
 END_CPU_FUNC
 
@@ -310,7 +310,13 @@ BEGIN_CPU_FUNC(opcode_0x27)
 END_CPU_FUNC
 
 BEGIN_CPU_FUNC(opcode_0x28)
+#ifdef NATIVE_MODE
 	S_PULL(P);					/* PLP s */
+#else
+    byte tmpP;
+    S_PULL(tmpP);
+    P = (tmpP & ~0x30) | (P & 0x30);
+#endif
 	CPU_modeSwitch();
 END_CPU_FUNC
 
@@ -1234,7 +1240,11 @@ END_CPU_FUNC
 
 BEGIN_CPU_FUNC(opcode_0xC2)
 	O_i8(operand);					/* REP # */
+#ifdef NATIVE_MODE
 	P &= ~operand.B.L;
+#else
+    P &= ~(operand.B.L & ~0x30);
+#endif
 	CPU_modeSwitch();
 END_CPU_FUNC
 
@@ -1421,7 +1431,11 @@ END_CPU_FUNC
 
 BEGIN_CPU_FUNC(opcode_0xE2)
 	O_i8(operand);					/* SEP # */
+#ifdef NATIVE_MODE
 	P |= operand.B.L;
+#else
+    P |= (operand.B.L & ~0x30);
+#endif
 	CPU_modeSwitch();
 END_CPU_FUNC
 
