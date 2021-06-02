@@ -1,16 +1,18 @@
-Configuring and Installing lib65816
-===================================
+Configuring and Installing lib65816 (Deprecated)
+================================================
 
-This library uses a very simplified build procedure.  While most software built
-with the GNU toolchain uses the traditional sequence of "configure; make; make
-install", the GNU autotools are difficult to use and maintain; I could never
-get anything to work in it.  I tried, with largely excellent results, to use
-SCons.  The problem with it is it is both slow and it doesn't clean up all the
-generated files it produces.  CMake was tried next, but its behavior is
-inconsistent between installations.  All of my CMakelists.txt worked under my
-Slackware OS, but not my GoboLinux system, despite being compiled from the same
-sources.  The only solution is to create a customized configuration system.  I
-really wish I didn't have to.
+**These build instructions are considered obsolete and deprecated.**
+Please see the new build instructions, below.
+
+This library uses a very simplified build procedure.
+While most software built with the GNU toolchain uses the traditional sequence of "configure; make; make install", the GNU autotools are difficult to use and maintain; I could never get anything to work in it.
+I tried, with largely excellent results, to use SCons.
+The problem with it is it is both slow and it doesn't clean up all the generated files it produces.
+CMake was tried next, but its behavior is inconsistent between installations.
+All of my CMakelists.txt worked under my Slackware OS, but not my GoboLinux system, despite being compiled from the same sources.
+(**No longer true; see below.**)
+The only solution is to create a customized configuration system.
+I really wish I didn't have to.
 
 STEP 1: META-CONFIGURATION
 
@@ -33,6 +35,44 @@ STEP 3: INSTALLATION
   If the PREFIX is set appropriately, and you have the appropriate user
   credentials, you should be able to type "make install" to install the
   compiled software to the appropriate locations on your computer.
+
+Configuration and Installing lib65816
+=====================================
+
+To build, I execute the following steps:
+
+```sh
+cmake -S . -B build
+cd build
+make
+```
+
+This should result in two binaries within the `build` directory: `lib65816.a` and `lib65816.so`.
+
+To perform a full system installation, perform this step within `build`:
+
+```sh
+sudo make install
+```
+
+Uninstalling
+============
+
+Inside the `build` directory created above,
+you will find a file titled `install_manifest.txt`.
+This file lists, one per line, each file installed during a `make install` operation.
+At least for Unix systems,
+you can uninstall lib65816 by executing the following command:
+
+```sh
+xargs rm < install_manifest.txt
+```
+
+I don't know the corresponding command for other operating systems.
+
+
+Contact
+=======
 
 If you have any problems, feel free to contact me.
 
