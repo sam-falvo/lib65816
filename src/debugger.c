@@ -169,7 +169,7 @@ void CPU_debug(void) {
             break;
 
         case IMPL:
-            sprintf( operands, "" );
+            //sprintf( operands, "" );
             break;
 
         case DP:
