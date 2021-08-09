@@ -132,10 +132,12 @@ void CPU_debug(void) {
 
 	opcode = M_READ(PC.A);
 	mode = addrmodes[opcode];
-	printf("A=%04X X=%04X Y=%04X S=%04X D=%04X B=%02X P=%02X E=%1d  ",(int) A.W, (int) X.W,
-									   (int) Y.W, (int) S.W,
-									   (int) D.W, (int) DB,
-									   (int) P, (int) E);
+	printf("A=%04X X=%04X Y=%04X S=%04X D=%04X B=%02X P=%02X (%c%c%c%c%c%c%c%c) E=%1d  ",
+			(int) A.W, (int) X.W, (int) Y.W, (int) S.W, (int) D.W, (int) DB,
+			(int) P,
+			(F_getN?'N':'n'), (F_getV?'V':'v'), (F_getM?'M':'m'), (F_getX?'X':'x'),
+			(F_getD?'D':'d'), (F_getI?'I':'i'), (F_getZ?'Z':'z'), (F_getC?'C':'c'),
+			(int) E);
 	printf("%02X/%04X  %s ",(int) PC.B.PB,(int) PC.W.PC,mnemonics[opcode]);
 	switch (mode) {
         case IMM8:

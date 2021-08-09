@@ -1,6 +1,11 @@
 #ifndef LIB65816_CPU_H
 #define LIB65816_CPU_H
 
+#ifndef STDINT
+#define STDINT
+#include <stdint.h>
+#endif
+
 /*
  * lib65816/cpu.h Release 1p1
  * See LICENSE for more details.
@@ -24,6 +29,7 @@
 typedef unsigned char       byte;
 typedef signed char         sbyte;
 
+#if 0
 #if SIZEOF_LONG == 4
 typedef unsigned long       word32;
 typedef signed long         sword32;
@@ -42,8 +48,15 @@ typedef signed int          sword16;
 
 typedef signed char         offset_s;   /* short offset */
 typedef signed short        offset_l;   /* long offset  */
+#endif
 
+typedef uint32_t word32;
+typedef int32_t sword32;
+typedef uint16_t word16;
+typedef int16_t sword16;
 
+typedef int8_t offset_s;
+typedef int16_t offset_l;
 
 /*
  * Union definition of a 16-bit value that can also be 

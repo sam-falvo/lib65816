@@ -8,20 +8,25 @@
 #include <lib65816/cpuevent.h>
 #include <stdio.h>
 
+// The presence of both a null and a nil field prevents
+// GCC from optimizing away some of the data structure due
+// to aliasing concerns.
 struct List
 {
     CPUEvent *  head;
     void *      null;
+    void *      nil;
     CPUEvent *  tail;
 };
 
-static struct List eventList;
+static volatile struct List eventList;
 
 void
 CPUEvent_initialize( void )
 {
     eventList.head = (CPUEvent *)(&eventList.null);
     eventList.null = 0;
+    eventList.nil = 0;
     eventList.tail = (CPUEvent *)(&eventList);
 }
 
