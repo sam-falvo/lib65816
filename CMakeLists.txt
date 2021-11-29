@@ -39,3 +39,4 @@ target_include_directories(lib65816a PUBLIC
 
 install(TARGETS lib65816so lib65816a)
 install(DIRECTORY lib65816 DESTINATION include/lib65816 FILES_MATCHING PATTERN "*.h")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib65816/config.h DESTINATION include/lib65816/lib65816)
