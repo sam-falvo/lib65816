@@ -6,6 +6,8 @@
 #include <stdint.h>
 #endif
 
+#include <stdio.h>
+
 /*
  * lib65816/cpu.h Release 1p1
  * See LICENSE for more details.
@@ -221,6 +223,10 @@ void CPU_modeSwitch(void);
 
 void CPU_debug(void);
 
+/* Set the output file of the debugger trace output. */
+/* Default is stdout */
+
+void CPU_setDbgOutfile(FILE *f);
 
 /* These are used by the various macros above, so make sure that we
  * declare them for type safety purposes!  Thanks to fabys for these on

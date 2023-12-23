@@ -17,6 +17,8 @@
 
 #include "cpumicro.h"
 
+FILE *out = NULL;
+
 /* 65816 debugger module */
 
 char *mnemonics[256] = {
@@ -123,6 +125,10 @@ int addrmodes[256] = {
 
 extern int cpu_irq;
 
+void CPU_setDbgOutfile(FILE *f) {
+	out = f;
+}
+
 void CPU_debug(void) {
 	int	opcode;
 	int	mode;
@@ -130,15 +136,19 @@ void CPU_debug(void) {
     int ea;
     char operands[40];
 
+	if (out == NULL) {
+		out = stdout;
+	}
+
 	opcode = M_READ(PC.A);
 	mode = addrmodes[opcode];
-	printf("A=%04X X=%04X Y=%04X S=%04X D=%04X B=%02X P=%02X (%c%c%c%c%c%c%c%c) E=%1d  ",
+	fprintf(out, "A=%04X X=%04X Y=%04X S=%04X D=%04X B=%02X P=%02X (%c%c%c%c%c%c%c%c) E=%1d  ",
 			(int) A.W, (int) X.W, (int) Y.W, (int) S.W, (int) D.W, (int) DB,
 			(int) P,
 			(F_getN?'N':'n'), (F_getV?'V':'v'), (F_getM?'M':'m'), (F_getX?'X':'x'),
 			(F_getD?'D':'d'), (F_getI?'I':'i'), (F_getZ?'Z':'z'), (F_getC?'C':'c'),
 			(int) E);
-	printf("%02X/%04X  %s ",(int) PC.B.PB,(int) PC.W.PC,mnemonics[opcode]);
+	fprintf(out, "%02X/%04X  %s ",(int) PC.B.PB,(int) PC.W.PC,mnemonics[opcode]);
 	switch (mode) {
         case IMM8:
             sprintf( operands, "#$%02X", M_READ(PC.A+1) );
@@ -314,8 +324,8 @@ void CPU_debug(void) {
             sprintf( operands, "$%02X, $%02X", M_READ(PC.A+2), M_READ(PC.A+1) );
             break;
 	}
-    printf( "%s\n", operands );
-	fflush(stdout);
+        fprintf( out, "%s\n", operands );
+	fflush(out);
 }
 
 #endif
