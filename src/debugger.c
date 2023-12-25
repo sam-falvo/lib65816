@@ -140,7 +140,7 @@ void CPU_debug(void) {
 		out = stdout;
 	}
 
-	opcode = M_READ(PC.A);
+	opcode = M_PEEK(PC.A);
 	mode = addrmodes[opcode];
 	fprintf(out, "A=%04X X=%04X Y=%04X S=%04X D=%04X B=%02X P=%02X (%c%c%c%c%c%c%c%c) E=%1d  ",
 			(int) A.W, (int) X.W, (int) Y.W, (int) S.W, (int) D.W, (int) DB,
@@ -151,17 +151,17 @@ void CPU_debug(void) {
 	fprintf(out, "%02X/%04X  %s ",(int) PC.B.PB,(int) PC.W.PC,mnemonics[opcode]);
 	switch (mode) {
         case IMM8:
-            sprintf( operands, "#$%02X", M_READ(PC.A+1) );
+            sprintf( operands, "#$%02X", M_PEEK(PC.A+1) );
             break;
 
         case IMM:
-            operand = M_READ(PC.A+1) | (M_READ(PC.A+2)<<8);
+            operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8);
             if( F_getM ) sprintf( operands, "#$%02X", (operand & 0xFF));
             else         sprintf( operands, "#$%04X", operand );
             break;
 
         case IMMX:
-            operand = M_READ(PC.A+1) | (M_READ(PC.A+2)<<8);
+            operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8);
             if( F_getX ) sprintf( operands, "#$%02X", (operand & 0xFF));
             else         sprintf( operands, "#$%04X", operand );
             break;
@@ -171,12 +171,12 @@ void CPU_debug(void) {
             break;
 
         case PCR:
-            operand = M_READ(PC.A+1);
+            operand = M_PEEK(PC.A+1);
             sprintf( operands, "$%02X ($%02X%04X)", operand, PC.B.PB, PC.W.PC + operand + 2);
             break;
 
         case PCRL:
-            operand = M_READ(PC.A+1) | (M_READ(PC.A+2)<<8);
+            operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8);
             sprintf( operands, "$%02X ($%02X%04X)", operand, PC.B.PB, PC.W.PC + operand + 3);
             break;
 
@@ -185,143 +185,143 @@ void CPU_debug(void) {
             break;
 
         case DP:
-            operand = M_READ(PC.A+1);
+            operand = M_PEEK(PC.A+1);
             ea = D.W + operand;
             sprintf( operands, "$%02X (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case DPX:
-            operand = M_READ(PC.A+1);
+            operand = M_PEEK(PC.A+1);
             if( F_getX ) ea = D.W + operand + X.B.L;
             else         ea = D.W + operand + X.W;
             sprintf( operands, "$%02X,X (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case DPY:
-            operand = M_READ(PC.A+1);
+            operand = M_PEEK(PC.A+1);
             if( F_getX ) ea = D.W + operand + Y.B.L;
             else         ea = D.W + operand + Y.W;
             sprintf( operands, "$%02X,Y (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case DPI:
-            operand = M_READ(PC.A+1);
+            operand = M_PEEK(PC.A+1);
             ea = D.W + operand;
-            ea = M_READ(ea) | (M_READ(ea+1)<<8) | (DB<<16);
+            ea = M_PEEK(ea) | (M_PEEK(ea+1)<<8) | (DB<<16);
             sprintf( operands, "($%02X) (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case DPIX:
-            operand = M_READ(PC.A+1);
+            operand = M_PEEK(PC.A+1);
             if( F_getX ) ea = D.W + operand + X.B.L;
             else         ea = D.W + operand + X.W;
-            ea = M_READ(ea) | (M_READ(ea+1)<<8) | (DB<<16);
+            ea = M_PEEK(ea) | (M_PEEK(ea+1)<<8) | (DB<<16);
             sprintf( operands, "($%02X,X) (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case DPIY:
-            operand = M_READ(PC.A+1);
+            operand = M_PEEK(PC.A+1);
             ea = D.W + operand;
-            if( F_getX ) ea = M_READ(ea) | (M_READ(ea+1)<<8) | (DB<<16) + Y.B.L;
-            else         ea = M_READ(ea) | (M_READ(ea+1)<<8) | (DB<<16) + Y.W;
+            if( F_getX ) ea = M_PEEK(ea) | (M_PEEK(ea+1)<<8) | (DB<<16) + Y.B.L;
+            else         ea = M_PEEK(ea) | (M_PEEK(ea+1)<<8) | (DB<<16) + Y.W;
             sprintf( operands, "($%02X),Y (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case DPIL:
-            operand = M_READ(PC.A+1);
+            operand = M_PEEK(PC.A+1);
             ea = D.W + operand;
-            ea = M_READ(ea) | (M_READ(ea+1)<<8) | (M_READ(ea+2)<<16);
+            ea = M_PEEK(ea) | (M_PEEK(ea+1)<<8) | (M_PEEK(ea+2)<<16);
             sprintf( operands, "[$%02X] (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case DPILY:
-            operand = M_READ(PC.A+1);
+            operand = M_PEEK(PC.A+1);
             ea = D.W + operand;
-            if( F_getX ) ea = M_READ(ea) | (M_READ(ea+1)<<8) | (M_READ(ea+2)<<16) + Y.B.L;
-            else         ea = M_READ(ea) | (M_READ(ea+1)<<8) | (M_READ(ea+2)<<16) + Y.W;
+            if( F_getX ) ea = M_PEEK(ea) | (M_PEEK(ea+1)<<8) | (M_PEEK(ea+2)<<16) + Y.B.L;
+            else         ea = M_PEEK(ea) | (M_PEEK(ea+1)<<8) | (M_PEEK(ea+2)<<16) + Y.W;
             sprintf( operands, "[$%02X],Y (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case ABS:
-            operand = M_READ(PC.A+1) | (M_READ(PC.A+2)<<8);
+            operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8);
             ea = operand + (DB<<16);
             sprintf( operands, "$%04X (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case ABSX:
-            operand = M_READ(PC.A+1) | (M_READ(PC.A+2)<<8);
+            operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8);
             if( F_getX ) ea = operand + (DB<<16) + X.B.L;
             else         ea = operand + (DB<<16) + X.W;
             sprintf( operands, "$%04X,X (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case ABSY:
-            operand = M_READ(PC.A+1) | (M_READ(PC.A+2)<<8);
+            operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8);
             if( F_getX ) ea = operand + (DB<<16) + Y.B.L;
             else         ea = operand + (DB<<16) + Y.W;
             sprintf( operands, "$%04X,Y (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case ABSL:
-            operand = M_READ(PC.A+1) | (M_READ(PC.A+2)<<8) | (M_READ(PC.A+3)<<16);
+            operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8) | (M_PEEK(PC.A+3)<<16);
             ea = operand;
             sprintf( operands, "$%06X (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case ABSLX:
-            operand = M_READ(PC.A+1) | (M_READ(PC.A+2)<<8) | (M_READ(PC.A+3)<<16);
+            operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8) | (M_PEEK(PC.A+3)<<16);
             if( F_getX ) ea = operand + X.B.L;
             else         ea = operand + X.W;
             sprintf( operands, "$%06X (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case ABSI:
-            operand = M_READ(PC.A+1) | (M_READ(PC.A+2)<<8);
-            ea = M_READ(operand) + (M_READ(operand+1)<<8) + (DB<<16);
+            operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8);
+            ea = M_PEEK(operand) + (M_PEEK(operand+1)<<8) + (DB<<16);
             sprintf( operands, "$%04X (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case ABSIX:
-            operand = M_READ(PC.A+1) | (M_READ(PC.A+2)<<8);
+            operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8);
             ea = operand | (PC.B.PB << 16);
-            ea = M_READ(ea) + (M_READ(ea+1)<<8) + (PC.B.PB<<16);
+            ea = M_PEEK(ea) + (M_PEEK(ea+1)<<8) + (PC.B.PB<<16);
             sprintf( operands, "($%04X,X) (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case STK:
-            operand = M_READ(PC.A+1);
+            operand = M_PEEK(PC.A+1);
             ea = operand + S.W;
             sprintf( operands, "$%02X,S (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case STKIY:
-            operand = M_READ(PC.A+1);
+            operand = M_PEEK(PC.A+1);
             ea = operand + S.W;
-            if( F_getX ) ea = M_READ(ea) + (M_READ(ea+1)<<8) + (DB<<16) + Y.B.L;
-            else         ea = M_READ(ea) + (M_READ(ea+1)<<8) + (DB<<16) + Y.W;
+            if( F_getX ) ea = M_PEEK(ea) + (M_PEEK(ea+1)<<8) + (DB<<16) + Y.B.L;
+            else         ea = M_PEEK(ea) + (M_PEEK(ea+1)<<8) + (DB<<16) + Y.W;
 
             sprintf( operands, "$%02X,S (@%06X %02X %02X %02X ...)",
-                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+                operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
 
         case BLK:
-            sprintf( operands, "$%02X, $%02X", M_READ(PC.A+2), M_READ(PC.A+1) );
+            sprintf( operands, "$%02X, $%02X", M_PEEK(PC.A+2), M_PEEK(PC.A+1) );
             break;
 	}
         fprintf( out, "%s\n", operands );
