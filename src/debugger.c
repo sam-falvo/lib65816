@@ -149,6 +149,10 @@ void CPU_debug(void) {
 			(F_getD?'D':'d'), (F_getI?'I':'i'), (F_getZ?'Z':'z'), (F_getC?'C':'c'),
 			(int) E);
 	fprintf(out, "%02X/%04X  %s ",(int) PC.B.PB,(int) PC.W.PC,mnemonics[opcode]);
+
+	/* prevent error printing implied */
+	operands[0] = 0;
+
 	switch (mode) {
         case IMM8:
             sprintf( operands, "#$%02X", M_PEEK(PC.A+1) );
@@ -172,12 +176,12 @@ void CPU_debug(void) {
 
         case PCR:
             operand = M_PEEK(PC.A+1);
-            sprintf( operands, "$%02X ($%02X%04X)", operand, PC.B.PB, PC.W.PC + operand + 2);
+            sprintf( operands, "$%02X ($%02X%04X)", operand, PC.B.PB, PC.W.PC + operand + 2 - ((operand > 127) ? 256 : 0));
             break;
 
         case PCRL:
             operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8);
-            sprintf( operands, "$%02X ($%02X%04X)", operand, PC.B.PB, PC.W.PC + operand + 3);
+            sprintf( operands, "$%02X ($%02X%04X)", operand, PC.B.PB, PC.W.PC + operand + 3 - ((operand > 32767) ? 65536 : 0));
             break;
 
         case IMPL:
