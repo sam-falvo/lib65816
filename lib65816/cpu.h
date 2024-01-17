@@ -6,6 +6,8 @@
 #include <stdint.h>
 #endif
 
+#include <stdio.h>
+
 /*
  * lib65816/cpu.h Release 1p1
  * See LICENSE for more details.
@@ -140,11 +142,15 @@ extern word32   cpu_cycle_count;
  *
  * The SYNC pin is useful to trap OS calls, whereas the VP pin is
  * needed to emulate hardware which modifies the vector addresses.
+ *
+ * The M_PEEK is for reading memory without side effects, esp.
+ * for the debugger.
  */
 
 #define EMUL_PIN_SYNC 1 // much more work to provide VPD and VPA
 #define EMUL_PIN_VP   2
 #define M_READ(a)         MEM_readMem(a, cpu_cycle_count, 0)
+#define M_PEEK(a)         MEM_peekMem(a, cpu_cycle_count, 0)
 #define M_READ_OPCODE(a)  MEM_readMem(a, cpu_cycle_count, EMUL_PIN_SYNC)
 #define M_READ_VECTOR(a)  MEM_readMem(a, cpu_cycle_count, EMUL_PIN_VP)
 #define M_WRITE(a,v)      MEM_writeMem((a),(v), cpu_cycle_count)
@@ -221,6 +227,10 @@ void CPU_modeSwitch(void);
 
 void CPU_debug(void);
 
+/* Set the output file of the debugger trace output. */
+/* Default is stdout */
+
+void CPU_setDbgOutfile(FILE *f);
 
 /* These are used by the various macros above, so make sure that we
  * declare them for type safety purposes!  Thanks to fabys for these on
@@ -233,6 +243,7 @@ void CPU_debug(void);
 void EMUL_handleWDM(byte opcode, word32 timestamp);
 void EMUL_hardwareUpdate(word32 timestamp);
 byte MEM_readMem(word32 address, word32 timestamp, word32 emulFlags);
+byte MEM_peekMem(word32 address, word32 timestamp, word32 emulFlags);
 void MEM_writeMem(word32 address, byte b, word32 timestamp);
 
 #endif /* _CPU_H */
