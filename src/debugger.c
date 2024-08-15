@@ -14,10 +14,23 @@
 
 #include <lib65816/cpu.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 #include "cpumicro.h"
 
-FILE *out = NULL;
+/* breakpoint handling */
+
+#define BP_NUM (sizeof(bps)/sizeof(bps[0]))
+
+#define BP_EXECUTE 1
+
+struct bp {
+  int flags;
+  word32 addr;
+};
+
+static struct bp bps[128];
 
 /* 65816 debugger module */
 
@@ -124,18 +137,26 @@ int addrmodes[256] = {
 };
 
 extern int cpu_irq;
+extern int trace;
+extern int no_io;
 
+<<<<<<< HEAD
 void CPU_setDbgOutfile(FILE *f) {
 	out = f;
 }
 
 void CPU_debug(void) {
+=======
+int CPU_disasm(int out) {
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
 	int	opcode;
 	int	mode;
 	int	operand;
-    int ea;
-    char operands[40];
+	int ea;
+	char operands[40];
+	int size;
 
+<<<<<<< HEAD
 	if (out == NULL) {
 		out = stdout;
 	}
@@ -143,11 +164,18 @@ void CPU_debug(void) {
 	opcode = M_PEEK(PC.A);
 	mode = addrmodes[opcode];
 	fprintf(out, "A=%04X X=%04X Y=%04X S=%04X D=%04X B=%02X P=%02X (%c%c%c%c%c%c%c%c) E=%1d  ",
+=======
+	no_io = 1;
+	opcode = M_READ(PC.A);
+	mode = addrmodes[opcode];
+	if(out == 1) printf("A=%04X X=%04X Y=%04X S=%04X D=%04X B=%02X P=%02X (%c%c%c%c%c%c%c%c) E=%1d  ",
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
 			(int) A.W, (int) X.W, (int) Y.W, (int) S.W, (int) D.W, (int) DB,
 			(int) P,
 			(F_getN?'N':'n'), (F_getV?'V':'v'), (F_getM?'M':'m'), (F_getX?'X':'x'),
 			(F_getD?'D':'d'), (F_getI?'I':'i'), (F_getZ?'Z':'z'), (F_getC?'C':'c'),
 			(int) E);
+<<<<<<< HEAD
 	fprintf(out, "%02X/%04X  %s ",(int) PC.B.PB,(int) PC.W.PC,mnemonics[opcode]);
 
 	/* prevent error printing implied */
@@ -156,25 +184,36 @@ void CPU_debug(void) {
 	switch (mode) {
         case IMM8:
             sprintf( operands, "#$%02X", M_PEEK(PC.A+1) );
+=======
+	if(out) printf("%02X/%04X  %s ",(int) PC.B.PB,(int) PC.W.PC,mnemonics[opcode]);
+	switch (mode) {
+        case IMM8:
+            sprintf( operands, "#$%02X", M_READ(PC.A+1) );
+	    size = 2;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case IMM:
             operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8);
             if( F_getM ) sprintf( operands, "#$%02X", (operand & 0xFF));
             else         sprintf( operands, "#$%04X", operand );
+	    size = F_getM?2:3;
             break;
 
         case IMMX:
             operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8);
             if( F_getX ) sprintf( operands, "#$%02X", (operand & 0xFF));
             else         sprintf( operands, "#$%04X", operand );
+	    size = F_getX?2:3;
             break;
 
         case ACC:
             sprintf( operands, "A" );
+	    size = 1;
             break;
 
         case PCR:
+<<<<<<< HEAD
             operand = M_PEEK(PC.A+1);
             sprintf( operands, "$%02X ($%02X%04X)", operand, PC.B.PB, PC.W.PC + operand + 2 - ((operand > 127) ? 256 : 0));
             break;
@@ -182,17 +221,34 @@ void CPU_debug(void) {
         case PCRL:
             operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8);
             sprintf( operands, "$%02X ($%02X%04X)", operand, PC.B.PB, PC.W.PC + operand + 3 - ((operand > 32767) ? 65536 : 0));
+=======
+            operand = M_READ(PC.A+1);
+            sprintf( operands, "$%02X ($%02X%04X)", operand, PC.B.PB, PC.W.PC + operand + 2);
+	    size = 2;
+            break;
+
+        case PCRL:
+            operand = M_READ(PC.A+1) | (M_READ(PC.A+2)<<8);
+            sprintf( operands, "$%02X ($%02X%04X)", operand, PC.B.PB, PC.W.PC + operand + 3);
+	    size = 3;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case IMPL:
-            //sprintf( operands, "" );
+	    operands[0]=0;
+	    size = 1;
             break;
 
         case DP:
             operand = M_PEEK(PC.A+1);
             ea = D.W + operand;
             sprintf( operands, "$%02X (@%06X %02X %02X %02X ...)",
+<<<<<<< HEAD
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
+=======
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 2;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case DPX:
@@ -200,7 +256,12 @@ void CPU_debug(void) {
             if( F_getX ) ea = D.W + operand + X.B.L;
             else         ea = D.W + operand + X.W;
             sprintf( operands, "$%02X,X (@%06X %02X %02X %02X ...)",
+<<<<<<< HEAD
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
+=======
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 2;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case DPY:
@@ -208,7 +269,12 @@ void CPU_debug(void) {
             if( F_getX ) ea = D.W + operand + Y.B.L;
             else         ea = D.W + operand + Y.W;
             sprintf( operands, "$%02X,Y (@%06X %02X %02X %02X ...)",
+<<<<<<< HEAD
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
+=======
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 2;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case DPI:
@@ -216,7 +282,12 @@ void CPU_debug(void) {
             ea = D.W + operand;
             ea = M_PEEK(ea) | (M_PEEK(ea+1)<<8) | (DB<<16);
             sprintf( operands, "($%02X) (@%06X %02X %02X %02X ...)",
+<<<<<<< HEAD
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
+=======
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 2;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case DPIX:
@@ -225,7 +296,12 @@ void CPU_debug(void) {
             else         ea = D.W + operand + X.W;
             ea = M_PEEK(ea) | (M_PEEK(ea+1)<<8) | (DB<<16);
             sprintf( operands, "($%02X,X) (@%06X %02X %02X %02X ...)",
+<<<<<<< HEAD
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
+=======
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 2;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case DPIY:
@@ -234,7 +310,12 @@ void CPU_debug(void) {
             if( F_getX ) ea = M_PEEK(ea) | (M_PEEK(ea+1)<<8) | (DB<<16) + Y.B.L;
             else         ea = M_PEEK(ea) | (M_PEEK(ea+1)<<8) | (DB<<16) + Y.W;
             sprintf( operands, "($%02X),Y (@%06X %02X %02X %02X ...)",
+<<<<<<< HEAD
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
+=======
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 2;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case DPIL:
@@ -242,7 +323,12 @@ void CPU_debug(void) {
             ea = D.W + operand;
             ea = M_PEEK(ea) | (M_PEEK(ea+1)<<8) | (M_PEEK(ea+2)<<16);
             sprintf( operands, "[$%02X] (@%06X %02X %02X %02X ...)",
+<<<<<<< HEAD
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
+=======
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 2;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case DPILY:
@@ -251,14 +337,24 @@ void CPU_debug(void) {
             if( F_getX ) ea = M_PEEK(ea) | (M_PEEK(ea+1)<<8) | (M_PEEK(ea+2)<<16) + Y.B.L;
             else         ea = M_PEEK(ea) | (M_PEEK(ea+1)<<8) | (M_PEEK(ea+2)<<16) + Y.W;
             sprintf( operands, "[$%02X],Y (@%06X %02X %02X %02X ...)",
+<<<<<<< HEAD
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
+=======
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 2;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case ABS:
             operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8);
             ea = operand + (DB<<16);
             sprintf( operands, "$%04X (@%06X %02X %02X %02X ...)",
+<<<<<<< HEAD
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
+=======
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 3;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case ABSX:
@@ -266,7 +362,12 @@ void CPU_debug(void) {
             if( F_getX ) ea = operand + (DB<<16) + X.B.L;
             else         ea = operand + (DB<<16) + X.W;
             sprintf( operands, "$%04X,X (@%06X %02X %02X %02X ...)",
+<<<<<<< HEAD
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
+=======
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 3;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case ABSY:
@@ -274,14 +375,24 @@ void CPU_debug(void) {
             if( F_getX ) ea = operand + (DB<<16) + Y.B.L;
             else         ea = operand + (DB<<16) + Y.W;
             sprintf( operands, "$%04X,Y (@%06X %02X %02X %02X ...)",
+<<<<<<< HEAD
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
+=======
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 3;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case ABSL:
             operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8) | (M_PEEK(PC.A+3)<<16);
             ea = operand;
             sprintf( operands, "$%06X (@%06X %02X %02X %02X ...)",
+<<<<<<< HEAD
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
+=======
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 4;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case ABSLX:
@@ -289,14 +400,24 @@ void CPU_debug(void) {
             if( F_getX ) ea = operand + X.B.L;
             else         ea = operand + X.W;
             sprintf( operands, "$%06X (@%06X %02X %02X %02X ...)",
+<<<<<<< HEAD
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
+=======
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 4;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case ABSI:
             operand = M_PEEK(PC.A+1) | (M_PEEK(PC.A+2)<<8);
             ea = M_PEEK(operand) + (M_PEEK(operand+1)<<8) + (DB<<16);
             sprintf( operands, "$%04X (@%06X %02X %02X %02X ...)",
+<<<<<<< HEAD
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
+=======
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 3;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case ABSIX:
@@ -304,14 +425,24 @@ void CPU_debug(void) {
             ea = operand | (PC.B.PB << 16);
             ea = M_PEEK(ea) + (M_PEEK(ea+1)<<8) + (PC.B.PB<<16);
             sprintf( operands, "($%04X,X) (@%06X %02X %02X %02X ...)",
+<<<<<<< HEAD
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
+=======
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 3;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case STK:
             operand = M_PEEK(PC.A+1);
             ea = operand + S.W;
             sprintf( operands, "$%02X,S (@%06X %02X %02X %02X ...)",
+<<<<<<< HEAD
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
+=======
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 2;
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
             break;
 
         case STKIY:
@@ -320,6 +451,7 @@ void CPU_debug(void) {
             if( F_getX ) ea = M_PEEK(ea) + (M_PEEK(ea+1)<<8) + (DB<<16) + Y.B.L;
             else         ea = M_PEEK(ea) + (M_PEEK(ea+1)<<8) + (DB<<16) + Y.W;
 
+<<<<<<< HEAD
             sprintf( operands, "$%02X,S (@%06X %02X %02X %02X ...)",
                 operand, ea, M_PEEK(ea), M_PEEK(ea+1), M_PEEK(ea+2) );
             break;
@@ -330,6 +462,146 @@ void CPU_debug(void) {
 	}
         fprintf( out, "%s\n", operands );
 	fflush(out);
+=======
+            sprintf( operands, "($%02X,S),Y (@%06X %02X %02X %02X ...)",
+                operand, ea, M_READ(ea), M_READ(ea+1), M_READ(ea+2) );
+	    size = 2;
+            break;
+
+        case BLK:
+            sprintf( operands, "$%02X, $%02X", M_READ(PC.A+2), M_READ(PC.A+1) );
+	    size = 3;
+            break;
+	}
+	if(out) printf( "%s\n", operands );
+	no_io=0;
+	return size;
+}
+
+
+
+void CPU_debug(void)
+{
+
+  static char buf[32], rep[32];
+  static word32 gaddr, daddr, m;
+  word32 oldpc;
+  static int run;
+  int i, tmp;
+
+  if(run){
+    if(PC.A == gaddr){
+      gaddr=-1;
+      run=0;
+    }
+
+    for(i = 0; i<BP_NUM; i++)
+      if(bps[i].flags == BP_EXECUTE && bps[i].addr == PC.A){
+	printf("Breakpoint %d hit!\n", i);
+	run = 0;
+      }
+  }
+  if(run)
+    return;
+
+  CPU_disasm(1);
+
+  while(1){
+    if(trace){
+      strcpy(buf,"s");
+    }else{
+      do {
+	printf("> ");
+	fflush(stdout);
+      } while (!fgets(buf, 32, stdin));
+    }
+
+    if(!buf[0] || buf[0] == '\n')
+      strcpy(buf, rep);
+    else
+      strcpy(rep, buf);
+
+    switch (buf[0]){
+    case 'g':  /* goto addr */
+      if(sscanf(buf, "g %i", &tmp) == 1)
+	gaddr = tmp;
+      run = 1;
+      break;
+    case 't':
+    case 's':  /* single step */
+      //if(buf[1]=='*') log=1;
+      //dd->run = TRUE;
+      break;
+    case 'n':  /* run to next instruction */
+      gaddr = PC.A + CPU_disasm(0);
+      run = 1;
+      break;
+    case 'r':
+      printf("CPU reset!\n");
+      CPU_reset();
+      break;
+    case 'q':
+      exit(0);
+      break;
+    case 'd':
+      /* d <addr> [n]: disassemble n instructions at addr
+	 dh: disassemble here
+	 d: disassemble next line
+      */
+      oldpc = PC.A;
+      i = 10;
+      if(sscanf(buf,"d %i %i", &tmp, &i) >= 1)
+	daddr = tmp;
+      else if(buf[1] == 'h')
+	daddr = PC.A;
+      printf("\n");
+      while(i--){
+	PC.A = daddr;
+	daddr += CPU_disasm(2);
+      }
+      printf("\n");
+      strcpy(rep, "d");
+      PC.A = oldpc;
+      continue;
+    case 'm':   /* dump memory around addr */
+      tmp = 64;
+      if(sscanf(buf, "m %i %i", &i, &tmp) >= 1)
+	daddr = i;
+      m = daddr;
+      daddr &= ~15;
+      for(i = 0; i < tmp; i++){
+	if((i & 15) == 0)
+	  printf("\n%06lX:", (unsigned long)daddr);
+	printf("%c%02X", daddr == m ? '>' : ' ', daddr >= 2 ? (int)MEM_readMem(daddr, 0, 0) : 0);
+	daddr++;
+      }
+      printf("\n\n");
+      strcpy(rep, "m");
+      continue;
+    case 'b':  /* set breakpoint at  addr */
+      if(sscanf(buf, "b %i", &tmp) == 1){
+	for(i = 0; i < BP_NUM; i++){
+	  if(bps[i].flags == 0){
+	    bps[i].flags = BP_EXECUTE;
+	    bps[i].addr = tmp;
+	    printf("\nbreakpoint %d set at 0x%lx\n\n", i, (unsigned long)tmp);
+	    break;
+	  }
+	}
+      }else{
+	printf("\nBreakpoints:\n");
+	for(i = 0; i<BP_NUM; i++){
+	  if(bps[i].flags == BP_EXECUTE)
+	    printf("%03d: 0x%06lX Execute\n", i, (unsigned long)bps[i].addr);
+	}
+	printf("\n");
+      }
+      continue;
+    }
+    strcpy(rep, buf);
+    break;
+  }
+>>>>>>> 22748cd (New debugger, SBC [d] bug fix, and other contributions)
 }
 
 #endif

@@ -235,7 +235,7 @@
 			} else {								\
 				wtmp.W = (A.B.L - v) - !F_getC;					\
 				F_setC(!wtmp.B.H);						\
-			}									\
+			}\
 			F_setV((A.B.L ^ v) & (A.B.L ^ wtmp.B.L) & 0x80);			\
 			A.B.L = wtmp.B.L;							\
 			C_SETF8(A.B.L);
@@ -276,8 +276,8 @@
 				atmp.A = (A.W - v) - !F_getC;					\
 				F_setC(!atmp.W.H);						\
 			}									\
-			A.W = atmp.W.L;								\
 			F_setV((A.W ^ v) & (A.W ^ atmp.W.L) & 0x8000);				\
+                        A.W = atmp.W.L;\
 			C_SETF16(A.W);
 
 #define C_CMP8(v)	wtmp.W = A.B.L - v;	\

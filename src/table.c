@@ -12,7 +12,9 @@
 
 #include "cputable.h"
 
-const void (*cpu_opcode_table[1300]) = {
+typedef void (*fp)(void);
+
+const fp cpu_opcode_table[1300] = {
 	e0m1x1_opcode_0x00,
 	e0m1x1_opcode_0x01,
 	e0m1x1_opcode_0x02,

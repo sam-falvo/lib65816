@@ -1460,7 +1460,7 @@ BEGIN_CPU_FUNC(opcode_0xE6)
 END_CPU_FUNC
 
 BEGIN_CPU_FUNC(opcode_0xE7)
-	O_di(opaddr);					/* SBC [d] */
+	O_dil(opaddr);					/* SBC [d] */
 	C_SBC(opaddr);
 END_CPU_FUNC
 
